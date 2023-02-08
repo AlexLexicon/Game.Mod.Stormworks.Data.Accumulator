@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Lexicon.Common.Wpf.DependencyInjection.Mvvm.Abstractions" Version="7.0.49" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Game.Mod.Stormworks.Data.Accumulator.Application\Game.Mod.Stormworks.Data.Accumulator.Application.csproj" />
+  </ItemGroup>
+
+</Project>
