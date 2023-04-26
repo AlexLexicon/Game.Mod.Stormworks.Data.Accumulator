@@ -3,9 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33213.308
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game.Mod.Stormworks.Data.Accumulator.Application", "Game.Mod.Stormworks.Data.Accumulator.Application\Game.Mod.Stormworks.Data.Accumulator.Application.csproj", "{7501A07B-DC7A-4F02-82C2-E8D073219E1E}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game.Mod.Stormworks.Data.Accumulator.ConsoleApp", "Game.Mod.Stormworks.Data.Accumulator.ConsoleApp\Game.Mod.Stormworks.Data.Accumulator.ConsoleApp.csproj", "{AA584072-806A-4020-A1C0-B5310D4A3043}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Game.Mod.Stormworks.Data.Accumulator.ConsoleApp", "Game.Mod.Stormworks.Data.Accumulator.ConsoleApp\Game.Mod.Stormworks.Data.Accumulator.ConsoleApp.csproj", "{AA584072-806A-4020-A1C0-B5310D4A3043}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,10 +11,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{7501A07B-DC7A-4F02-82C2-E8D073219E1E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7501A07B-DC7A-4F02-82C2-E8D073219E1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7501A07B-DC7A-4F02-82C2-E8D073219E1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7501A07B-DC7A-4F02-82C2-E8D073219E1E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{AA584072-806A-4020-A1C0-B5310D4A3043}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AA584072-806A-4020-A1C0-B5310D4A3043}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA584072-806A-4020-A1C0-B5310D4A3043}.Release|Any CPU.ActiveCfg = Release|Any CPU
