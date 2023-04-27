@@ -1,7 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Runtime.InteropServices;
+﻿using System.Drawing;
 
 namespace Game.Mod.Stormworks.Data.Accumulator.ConsoleApp.Services;
 public interface IIslandImageCropService
@@ -10,12 +7,28 @@ public interface IIslandImageCropService
 }
 public class ImageCropService : IIslandImageCropService
 {
-    private static Rgb StormworksIslandAddonHoverRgb { get; } = new Rgb
+    public static bool IsHoverColor(Color color)
     {
-        R = 64,
-        G = 145,
-        B = 179
-    };
+        if (color.R is < 63 or > 64)
+        {
+            return false;
+        }
+
+        if (color.G is < 143 or > 145)
+        {
+            return false;
+        }
+
+        if (color.B is < 177 or > 179)
+        {
+            return false;
+        }
+
+        return true;
+    }
+    public static Color StormworksIslandAddonHoverRgbA { get; } = Color.FromArgb(64, 145, 179);
+    public static Color StormworksIslandAddonHoverRgbB { get; } = Color.FromArgb(64, 144, 179);
+    public static Color StormworksIslandAddonHoverRgbC { get; } = Color.FromArgb(64, 144, 178);
 
     public Task CropAsync(string filePath)
     {
@@ -27,133 +40,79 @@ public class ImageCropService : IIslandImageCropService
         }
 
         //you cannot override a bitmap file path so we create a temp copy to work from
-        string tempFilePath = Path.Combine(fi.DirectoryName, $"temp.{fi.Extension}");
+        string tempFilePath = Path.Combine(fi.DirectoryName, $"temp.{DateTime.Now.Ticks}{fi.Extension}");
         File.Copy(filePath, tempFilePath);
 
         var image = new Bitmap(tempFilePath);
 
-        // Lock the bitmap's bits.  
-        Rectangle rect = new Rectangle(0, 0, image.Width, image.Height);
-        BitmapData bmpData = image.LockBits(rect, ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+        Point? topLeft = null;
+        Point? bottomRight = null;
 
-        // Get the address of the first line.
-        IntPtr ptr = bmpData.Scan0;
-
-        // Declare an array to hold the bytes of the bitmap.
-        int bytes = bmpData.Stride * image.Height;
-        byte[] rgbValues = new byte[bytes];
-        byte[] r = new byte[bytes / 3];
-        byte[] g = new byte[bytes / 3];
-        byte[] b = new byte[bytes / 3];
-
-        // Copy the RGB values into the array.
-        Marshal.Copy(ptr, rgbValues, 0, bytes);
-
-        int count = 0;
-        int stride = bmpData.Stride;
-
-        Pos? topLeft = null;
-        Pos? bottomRight = null;
-
-        for (int column = 0; column < bmpData.Width; column++)
+        for (int row = 0; row < image.Height; row++)
         {
-            var previous = new Rgb
+            Color previous = default;
+
+            int? mapStartedColumn = null;
+            bool firstBottomRight = false;
+            for (int column = 0; column < image.Width; column++)
             {
-                R = default,
-                G = default,
-                B = default,
-            };
-            Pos? possibleTopLeftForColumn = null;
-            bool hasStartedInColumn = false;
-            bool firstBottomRightInColumn = false;
-            for (int row = 0; row < bmpData.Height; row++)
-             {
-                var rgb = new Rgb
-                {
-                    R = rgbValues[row * stride + column * 3 + 2],
-                    G = rgbValues[row * stride + column * 3 + 1],
-                    B = rgbValues[row * stride + column * 3 + 0],
-                };
+                var rgb = image.GetPixel(column, row);
 
-                if (rgb.Equals(StormworksIslandAddonHoverRgb))
-                {
+                bool isPreviousHover = IsHoverColor(previous);
+                bool isNowHover = IsHoverColor(rgb);
 
+                if (isPreviousHover && !isNowHover)
+                {
+                    mapStartedColumn = column;
                 }
 
-                if (previous.Equals(StormworksIslandAddonHoverRgb) && !rgb.Equals(StormworksIslandAddonHoverRgb) && possibleTopLeftForColumn is null)
+                if (mapStartedColumn is not null && isNowHover)
                 {
-                    hasStartedInColumn = true;
-                    possibleTopLeftForColumn = new Pos
+                    int length = column - mapStartedColumn.Value;
+                    if (length > 200)
                     {
-                        X = column,
-                        Y = row,
-                    };
-                }
-
-                if (!previous.Equals(StormworksIslandAddonHoverRgb) && rgb.Equals(StormworksIslandAddonHoverRgb))
-                {
-                    if (topLeft is null && possibleTopLeftForColumn is not null)
-                    {
-                        topLeft = possibleTopLeftForColumn;
+                        topLeft ??= new Point(mapStartedColumn.Value, row);
+                        if (!firstBottomRight && row < 450)
+                        {
+                            bottomRight = new Point(column, row + 1);
+                            firstBottomRight = true;
+                        }
                     }
-
-                    if (!firstBottomRightInColumn && hasStartedInColumn)
+                    else
                     {
-                        firstBottomRightInColumn = true;
-                        bottomRight ??= new Pos();
-
-                        bottomRight.X = column;
-                        bottomRight.Y = row;
+                        mapStartedColumn = null;
                     }
                 }
 
                 previous = rgb;
-                count++;
             }
         }
 
         if (topLeft is not null && bottomRight is not null)
         {
-            var newImage = image.Clone(new Rectangle
+            try
             {
-                X = topLeft.X,
-                Y = topLeft.Y,
-                Width = bottomRight.X - topLeft.X + 1,
-                Height = bottomRight.Y - topLeft.Y,
-            }, image.PixelFormat);
+                var newImage = image.Clone(new Rectangle
+                {
+                    X = topLeft.Value.X,
+                    Y = topLeft.Value.Y,
+                    Width = bottomRight.Value.X - topLeft.Value.X,
+                    Height = bottomRight.Value.Y - topLeft.Value.Y,
+                }, image.PixelFormat);
 
-            newImage.Save(filePath);
+                newImage.Save(filePath);
 
-            newImage.Dispose();
+                newImage.Dispose();
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
         }
 
         image.Dispose();
         File.Delete(tempFilePath);
 
         return Task.CompletedTask;
-    }
-
-    private class Pos
-    {
-        public int X { get; set; }
-        public int Y { get; set; }
-    }
-    private readonly struct Rgb
-    {
-        public required byte R { get; init; }
-        public required byte G { get; init; }
-        public required byte B { get; init; }
-
-        public override bool Equals([NotNullWhen(true)] object? obj)
-        {
-            if (obj is Rgb other)
-            {
-                return other.R == R && other.G == G && other.B == B;
-            }
-
-            return false;
-        }
-
-        public override int GetHashCode() => R.GetHashCode() ^ G.GetHashCode() ^ B.GetHashCode();
     }
 }

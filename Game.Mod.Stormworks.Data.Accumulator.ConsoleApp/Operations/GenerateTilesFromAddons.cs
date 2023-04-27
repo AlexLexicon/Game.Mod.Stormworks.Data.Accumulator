@@ -79,8 +79,8 @@ public class GenerateTilesFromAddons : ITuiOperation
             string? tileFilePath = gameTileFilePaths.FirstOrDefault(t => Path.GetFileNameWithoutExtension(t) == xmlFileName);
 
             int? type = null;
-            bool? isIsland = null;
-            bool? isPurchasable = null;
+            bool isIsland = false;
+            bool isPurchasable = false;
             int? purchaseCost = null;
             if (tileFilePath is not null)
             {
@@ -90,28 +90,35 @@ public class GenerateTilesFromAddons : ITuiOperation
 
                 string[] rawXml = await File.ReadAllLinesAsync(tileFilePath);
                 string? definitionLine = rawXml.FirstOrDefault(r => r.StartsWith("<definition"));
-                if (definitionLine is not null)
+                try
                 {
-                    string? typeString = GetSlice(definitionLine, "tile_type=\"", "\"");
-                    if (typeString is not null && int.TryParse(typeString, out int typeResult))
+                    if (definitionLine is not null)
                     {
-                        type = typeResult;
+                        string? typeString = GetSlice(definitionLine, "tile_type=\"", "\"");
+                        if (typeString is not null && int.TryParse(typeString, out int typeResult))
+                        {
+                            type = typeResult;
+                        }
+                        string? isIslandString = GetSlice(definitionLine, "is_island=\"", "\"");
+                        if (isIslandString is not null && bool.TryParse(isIslandString, out bool isIslandResult))
+                        {
+                            isIsland = isIslandResult;
+                        }
+                        string? isPurchasableString = GetSlice(definitionLine, "is_purchasable=\"", "\"");
+                        if (isPurchasableString is not null && bool.TryParse(isPurchasableString, out bool isPurchasableResult))
+                        {
+                            isPurchasable = isPurchasableResult;
+                        }
+                        string? purchaseCostString = GetSlice(definitionLine, "purchase_cost=\"", "\"");
+                        if (purchaseCostString is not null && int.TryParse(purchaseCostString, out int purchaseCostResult))
+                        {
+                            purchaseCost = purchaseCostResult;
+                        }
                     }
-                    string? isIslandString = GetSlice(definitionLine, "is_island=\"", "\"");
-                    if (isIslandString is not null && bool.TryParse(isIslandString, out bool isIslandResult))
-                    {
-                        isIsland = isIslandResult;
-                    }
-                    string? isPurchasableString = GetSlice(definitionLine, "is_purchasable=\"", "\"");
-                    if (isPurchasableString is not null && bool.TryParse(isPurchasableString, out bool isPurchasableResult))
-                    {
-                        isPurchasable = isPurchasableResult;
-                    }
-                    string? purchaseCostString = GetSlice(definitionLine, "purchase_cost=\"", "\"");
-                    if (purchaseCostString is not null && int.TryParse(purchaseCostString, out int purchaseCostResult))
-                    {
-                        purchaseCost = purchaseCostResult;
-                    }
+                }
+                catch (Exception e)
+                {
+                    throw;
                 }
             }
 
@@ -124,6 +131,7 @@ public class GenerateTilesFromAddons : ITuiOperation
                 IsIsland = isIsland,
                 IsPurchasable = isPurchasable,
                 PurchaseCost = purchaseCost,
+                IsStartable = false,
             });
         }
 
@@ -174,10 +182,16 @@ public class GenerateTilesFromAddons : ITuiOperation
     private string? GetSlice(string input, string startString, string endString)
     {
         int start = input.IndexOf(startString);
+
+        if (start < 0)
+        {
+            return null;
+        }
+
         int begin = start + startString.Length;
         int end = input.IndexOf(endString, begin);
 
-        if (end > begin)
+        if (end > 0 && end > begin)
         {
             return input[begin..end];
         }

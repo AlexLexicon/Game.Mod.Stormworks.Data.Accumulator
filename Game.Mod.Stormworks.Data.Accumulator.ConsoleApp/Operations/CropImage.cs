@@ -28,7 +28,8 @@ public class CropImage : ITuiOperation
         }
         Console.WriteLine();
 
-        string outputFilePath = Consolex.ReadLine("Enter the directory you want to package the output to:");
+        string initalDirectory = $"{Environment.CurrentDirectory}\\stormworks.tiles";
+        string outputFilePath = Consolex.ReadLine("Enter the directory you want to package the output to:", initalDirectory);
 
         Console.WriteLine();
         Console.WriteLine("[Starting] crops");
