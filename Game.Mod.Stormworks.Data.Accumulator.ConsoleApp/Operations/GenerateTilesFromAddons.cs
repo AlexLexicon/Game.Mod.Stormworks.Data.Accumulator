@@ -90,35 +90,28 @@ public class GenerateTilesFromAddons : ITuiOperation
 
                 string[] rawXml = await File.ReadAllLinesAsync(tileFilePath);
                 string? definitionLine = rawXml.FirstOrDefault(r => r.StartsWith("<definition"));
-                try
+                if (definitionLine is not null)
                 {
-                    if (definitionLine is not null)
+                    string? typeString = GetSlice(definitionLine, "tile_type=\"", "\"");
+                    if (typeString is not null && int.TryParse(typeString, out int typeResult))
                     {
-                        string? typeString = GetSlice(definitionLine, "tile_type=\"", "\"");
-                        if (typeString is not null && int.TryParse(typeString, out int typeResult))
-                        {
-                            type = typeResult;
-                        }
-                        string? isIslandString = GetSlice(definitionLine, "is_island=\"", "\"");
-                        if (isIslandString is not null && bool.TryParse(isIslandString, out bool isIslandResult))
-                        {
-                            isIsland = isIslandResult;
-                        }
-                        string? isPurchasableString = GetSlice(definitionLine, "is_purchasable=\"", "\"");
-                        if (isPurchasableString is not null && bool.TryParse(isPurchasableString, out bool isPurchasableResult))
-                        {
-                            isPurchasable = isPurchasableResult;
-                        }
-                        string? purchaseCostString = GetSlice(definitionLine, "purchase_cost=\"", "\"");
-                        if (purchaseCostString is not null && int.TryParse(purchaseCostString, out int purchaseCostResult))
-                        {
-                            purchaseCost = purchaseCostResult;
-                        }
+                        type = typeResult;
                     }
-                }
-                catch (Exception e)
-                {
-                    throw;
+                    string? isIslandString = GetSlice(definitionLine, "is_island=\"", "\"");
+                    if (isIslandString is not null && bool.TryParse(isIslandString, out bool isIslandResult))
+                    {
+                        isIsland = isIslandResult;
+                    }
+                    string? isPurchasableString = GetSlice(definitionLine, "is_purchasable=\"", "\"");
+                    if (isPurchasableString is not null && bool.TryParse(isPurchasableString, out bool isPurchasableResult))
+                    {
+                        isPurchasable = isPurchasableResult;
+                    }
+                    string? purchaseCostString = GetSlice(definitionLine, "purchase_cost=\"", "\"");
+                    if (purchaseCostString is not null && int.TryParse(purchaseCostString, out int purchaseCostResult))
+                    {
+                        purchaseCost = purchaseCostResult;
+                    }
                 }
             }
 

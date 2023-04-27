@@ -90,24 +90,17 @@ public class ImageCropService : IIslandImageCropService
 
         if (topLeft is not null && bottomRight is not null)
         {
-            try
+            var newImage = image.Clone(new Rectangle
             {
-                var newImage = image.Clone(new Rectangle
-                {
-                    X = topLeft.Value.X,
-                    Y = topLeft.Value.Y,
-                    Width = bottomRight.Value.X - topLeft.Value.X,
-                    Height = bottomRight.Value.Y - topLeft.Value.Y,
-                }, image.PixelFormat);
+                X = topLeft.Value.X,
+                Y = topLeft.Value.Y,
+                Width = bottomRight.Value.X - topLeft.Value.X,
+                Height = bottomRight.Value.Y - topLeft.Value.Y,
+            }, image.PixelFormat);
 
-                newImage.Save(filePath);
+            newImage.Save(filePath);
 
-                newImage.Dispose();
-            }
-            catch (Exception e)
-            {
-                throw;
-            }
+            newImage.Dispose();
         }
 
         image.Dispose();
