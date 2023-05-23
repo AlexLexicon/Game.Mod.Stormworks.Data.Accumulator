@@ -3,6 +3,7 @@ using Lexicom.ConsoleApp.Amenities;
 using Lexicom.ConsoleApp.Tui;
 
 namespace Game.Mod.Stormworks.Data.Accumulator.ConsoleApp.Operations;
+[TuiPage("Generate Package")]
 [TuiTitle("Step 2: Crop all tile pngs")]
 public class CropImage : ITuiOperation
 {

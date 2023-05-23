@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Xml;
 
 namespace Game.Mod.Stormworks.Data.Accumulator.ConsoleApp.Operations;
+[TuiPage("Generate Package")]
 [TuiTitle("Step 1: Generate basic tile data from addons")]
 public class GenerateTilesFromAddons : ITuiOperation
 {
@@ -129,7 +130,7 @@ public class GenerateTilesFromAddons : ITuiOperation
         }
 
         string jsonFileName = $"tiles.json";
-        string initalDirectory = $"{Environment.CurrentDirectory}\\stormworks.tiles\\{jsonFileName}";
+        string initalDirectory = $"{Environment.CurrentDirectory}\\swtdpk\\{jsonFileName}";
 
         string outputFilePath = Consolex.ReadLine("Enter the directory you want to package the output to:", new ReadLineSettings
         {
